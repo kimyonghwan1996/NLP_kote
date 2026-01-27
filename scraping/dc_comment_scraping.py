@@ -6,7 +6,7 @@ import html
 import sqlite3
 from urllib.parse import urlparse, parse_qs
 
-conn = sqlite3.connect("../data/identifier.sqlite")
+conn = sqlite3.connect("/opt/project/data/identifier.sqlite")
 cur = conn.cursor()
 
 def clean_text(text):

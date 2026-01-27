@@ -109,8 +109,8 @@ dc_post_df = spark.read.format("jdbc") \
             concat_ws(" ", col("title"), col("article")).alias("comment"))
 
 comments_df = inven_df.unionByName(dc_df).na.drop()
-comments_df = comments_df.unionByName(inven_post_df).na.drop()
-comments_df = comments_df.unionByName(dc_post_df).na.drop()
+# comments_df = comments_df.unionByName(inven_post_df).na.drop()
+# comments_df = comments_df.unionByName(dc_post_df).na.drop()
 
 reward_df = spark.read.format("jdbc") \
     .option("url", "jdbc:sqlite:/data/identifier.sqlite") \
@@ -170,45 +170,72 @@ overall["ratio"] = overall["count"] / overall["count"].sum()
 print("\n=== 점검 전체 감정 ===")
 print(overall)
 
-# =====================
-# 6. 보상 언급 추출
-# =====================
-
-def find_rewards(text):
-    return [r for r in reward_items if r in text]
-
-pdf["item_name"] = pdf["comment"].apply(find_rewards)
-
-mentioned = pdf[pdf["item_name"].str.len() > 0].explode("item_name")
-
-# =====================
-# 7. 보상별 감정 분석
-# =====================
-
-reward_counts = (
-    mentioned.groupby(["item_name", "sentiment"])
+id_sentiment = (
+    pdf[pdf["sentiment"].isin(["positive", "negative"])]
+    .groupby(["articlecode", "sentiment"])
     .size()
     .reset_index(name="count")
 )
 
-total = mentioned.groupby("item_name").size().reset_index(name="total")
+top_positive = (
+    id_sentiment[id_sentiment["sentiment"] == "positive"]
+    .sort_values("count", ascending=False)
+    .head(10)
+)
 
-ratio = reward_counts.merge(total, on="item_name")
-ratio["ratio"] = ratio["count"] / ratio["total"]
+print("\n=== 긍정 TOP10 ID ===")
+print(top_positive)
 
-print("\n=== 보상별 감정 분포 ===")
-print(reward_counts)
+top_negative = (
+    id_sentiment[id_sentiment["sentiment"] == "negative"]
+    .sort_values("count", ascending=False)
+    .head(10)
+)
 
-print("\n=== 보상별 감정 비율 ===")
-print(ratio)
+print("\n=== 부정 TOP10 ID ===")
+print(top_negative)
+
+# # =====================
+# # 6. 보상 언급 추출
+# # =====================
+#
+# def find_rewards(text):
+#     return [r for r in reward_items if r in text]
+#
+# pdf["item_name"] = pdf["comment"].apply(find_rewards)
+#
+# mentioned = pdf[pdf["item_name"].str.len() > 0].explode("item_name")
+#
+# # =====================
+# # 7. 보상별 감정 분석
+# # =====================
+#
+# reward_counts = (
+#     mentioned.groupby(["item_name", "sentiment"])
+#     .size()
+#     .reset_index(name="count")
+# )
+#
+# total = mentioned.groupby("item_name").size().reset_index(name="total")
+#
+# ratio = reward_counts.merge(total, on="item_name")
+# ratio["ratio"] = ratio["count"] / ratio["total"]
+#
+# print("\n=== 보상별 감정 분포 ===")
+# print(reward_counts)
+#
+# print("\n=== 보상별 감정 비율 ===")
+# print(ratio)
 
 # =====================
 # 8. 저장
 # =====================
 
 overall.to_csv("/data/output/overall_sentiment.csv", index=False)
-reward_counts.to_csv("/data/output/reward_sentiment_raw.csv", index=False)
-ratio.to_csv("/data/output/reward_sentiment_ratio.csv", index=False)
+top_positive.to_csv("/data/output/top_positive_sentiment.csv", index=False)
+top_negative.to_csv("/data/output/top_negative_sentiment.csv", index=False)
+# reward_counts.to_csv("/data/output/reward_sentiment_raw.csv", index=False)
+# ratio.to_csv("/data/output/reward_sentiment_ratio.csv", index=False)
 
 print("\n✅ 분석 완료")
 

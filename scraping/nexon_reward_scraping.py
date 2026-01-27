@@ -4,10 +4,10 @@ import time
 import re
 import sqlite3
 
-conn = sqlite3.connect("../data/identifier.sqlite")
+conn = sqlite3.connect("/opt/project/data/identifier.sqlite")
 cur = conn.cursor()
 
-base_url = "https://mabinogimobile.nexon.com/News/Notice"
+base_url = "https://mabinogimobile.nexon.com/News/Update"
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"

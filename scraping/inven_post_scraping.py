@@ -5,7 +5,7 @@ import re
 import html
 import sqlite3
 
-conn = sqlite3.connect("../data/identifier.sqlite")
+conn = sqlite3.connect("/opt/project/data/identifier.sqlite")
 cur = conn.cursor()
 
 def clean_text(text):
@@ -26,7 +26,7 @@ def clean_text(text):
     return text.strip()
 
 
-inven_url = "https://www.inven.co.kr/search/mabimo/article/%EC%A0%90%EA%B2%80/"
+inven_url = "https://www.inven.co.kr/search/mabimo/article/업데이트/"
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -74,11 +74,11 @@ for page in range(1, 17):  # 1~10페이지
         })
 
         cur.execute("""
-                    INSERT INTO inven_post
+                    INSERT OR IGNORE INTO inven_post
                         (articlecode, comeidx, url, title, article, created_at)
                     VALUES (?, ?, ?, ?, ?, ?)
                     """, (
-                        articlecode,
+                        f"{articlecode}",
                         comeidx,
                         url,
                         title,

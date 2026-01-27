@@ -5,7 +5,7 @@ import re
 import html
 import sqlite3
 
-conn = sqlite3.connect("../data/identifier.sqlite")
+conn = sqlite3.connect("/opt/project/data/identifier.sqlite")
 cur = conn.cursor()
 
 def clean_text(text):
@@ -26,7 +26,7 @@ def clean_text(text):
     return text.strip()
 
 
-dc_url = "https://gall.dcinside.com/mgallery/board/view/?id=mabinogimobile&no=2163873&s_type=search_subject_memo&s_keyword=%EC%A0%90%EA%B2%80&page="
+dc_url = "https://gall.dcinside.com/mgallery/board/view/?id=mabinogimobile&no=2163873&s_type=search_subject_memo&s_keyword=업데이트&page="
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -71,7 +71,7 @@ for page in range(1, 5):  # 1~10페이지
             })
 
             cur.execute("""
-                        INSERT INTO dc_post
+                        INSERT OR IGNORE INTO dc_post
                             (articlecode, url, title, article, created_at)
                         VALUES (?, ?, ?, ?, ?)
                         """, (

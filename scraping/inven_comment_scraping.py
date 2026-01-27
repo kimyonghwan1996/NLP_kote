@@ -5,7 +5,7 @@ import re
 import html
 import sqlite3
 
-conn = sqlite3.connect("../data/identifier.sqlite")
+conn = sqlite3.connect("/opt/project/data/identifier.sqlite")
 cur = conn.cursor()
 
 def clean_text(text):
@@ -87,7 +87,7 @@ for url in urls:
                         """, (
                             articlecode,
                             author,
-                            comment,
+                            comment.replace("&nbsp",""),
                             date
                         ))
             conn.commit()

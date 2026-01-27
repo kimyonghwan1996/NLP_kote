@@ -3,10 +3,10 @@ from bs4 import BeautifulSoup
 import time
 import sqlite3
 
-conn = sqlite3.connect("../data/identifier.sqlite")
+conn = sqlite3.connect("/opt/project/data/identifier.sqlite")
 cur = conn.cursor()
 
-base_url = "https://mabinogimobile.nexon.com/News/Notice"
+base_url = "https://mabinogimobile.nexon.com/News/Update"
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -16,18 +16,19 @@ session = requests.Session()
 session.headers.update(headers)
 
 all_posts = []
-
-for page in range(1, 12):  # 1~10페이지
+blockStartNo = None
+blockStartKey = None
+for page in range(1, 3):  # 1~10페이지
     time.sleep(1)
 
     params = {
         "headlineId": "0",
         "directionType": "DEFAULT",
         "pageno": str(page),
-        "blockStartNo": "0",
-        "blockStartKey": "",
-        "searchKeywordType": "thread_title",
-        "keywords": "점검"
+        "blockStartNo": blockStartNo,
+        "blockStartKey": blockStartKey
+        # "searchKeywordType": "thread_title"
+        # "keywords": "점검"
     }
 
     response = session.get(base_url, params=params)
@@ -61,3 +62,8 @@ for page in range(1, 12):  # 1~10페이지
         VALUES (?, ?, ?, ?, ?, ?)
                     """, (thread_id, title, status, regular, writer, date))
         conn.commit()
+
+    tag = soup.select_one("#mabinogim > div.news.board_list.container > section.normal_list_wrap > div > div > div")
+    blockStartNo = "1"
+    blockStartKey = tag.get("data-blockstartkey")
+    print(blockStartNo,blockStartKey)
