@@ -1,0 +1,24 @@
+name: nexon-sentiment
+
+services:
+  airflow:
+    image: apache/airflow:2.8.1
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - .:/opt/project
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /opt/project
+    command: standalone
+    ports:
+      - "8080:8080"
+    user: root
+  sentiment:
+    container_name: spark_runner
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ./data:/data
+      - .:/opt/project
+    working_dir: /opt/project
+    entrypoint: ["sleep", "infinity"]
