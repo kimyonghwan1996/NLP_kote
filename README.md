@@ -77,5 +77,3 @@ MIT License
 - kimyonghwan1996
 
 ---
-
-추가 정보나 이슈는 [GitHub Issues](https://github.com/kimyonghwan1996/NLP_kote/issues)에서 보고해주세요.
